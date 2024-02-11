@@ -6,7 +6,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of WBIL is to …
+The goal of WBIL is to
 
 ## Installation
 
