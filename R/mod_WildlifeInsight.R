@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-#'
+#' @import DT
 mod_WildlifeInsight_ui <- function(id) {
   ns <- NS(id)
   tagList(
@@ -31,7 +31,7 @@ mod_WildlifeInsight_ui <- function(id) {
 }
 
 #' WildlifeInsight Server Functions
-#'
+#' @import DT
 #' @noRd
 mod_WildlifeInsight_server <- function(id) {
   moduleServer(id, function(input, output, session) {

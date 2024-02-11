@@ -7,22 +7,25 @@ Description: PKG_DESC.
 License: MIT + file LICENSE
 Imports: 
     config (>= 0.3.2),
+    dplyr,
+    DT,
     golem (>= 0.4.1),
-    pkgload,
+    lubridate,
+    readxl,
     shiny (>= 1.8.0),
     stringr,
-    dplyr,
     writexl,
-    DT,
-    lubridate
+    pkgload, 
+    shinydashboard
 Suggests: 
     knitr,
     rmarkdown,
     spelling,
     testthat (>= 3.0.0)
+VignetteBuilder: 
+    knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 LazyData: true
 RoxygenNote: 7.3.1
-VignetteBuilder: knitr

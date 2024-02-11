@@ -5,8 +5,8 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd
-#'
-#' @importFrom shiny NS tagList tabPanel sidebarLayout sidebarPanel fileInput selectInput textInput downloadButton mainPanel DTOutput
+#' @import DT
+#' @importFrom shiny NS tagList tabPanel sidebarLayout sidebarPanel fileInput selectInput textInput downloadButton mainPanel
 mod_Catalog_ui <- function(id) {
   ns <- NS(id)
   tagList(
@@ -33,28 +33,19 @@ mod_Catalog_ui <- function(id) {
 
 #' Catalog Server Functions
 #'
-#' @description A shiny module server for Catalog.
+#' This function defines server logic for the Catalog module in a Shiny application.
+#' It handles file input and data processing for catalog entries.
 #'
-#' @param id shiny id
-#'
-#' @importFrom shiny moduleServer
-#' @importFrom dplyr select mutate rename
-#' @importFrom readxl read_excel
-#' @importFrom writexl write_xlsx
-#' @importFrom DT datatable
-#' @export
-#' Catalog Server Functions
-#'
-#' @description A shiny module server for Catalog.
-#'
-#' @param id shiny id
+#' @param id A unique identifier for the shiny module.
 #'
 #' @importFrom shiny moduleServer
 #' @importFrom dplyr select mutate rename
 #' @importFrom readxl read_excel
 #' @importFrom writexl write_xlsx
 #' @importFrom DT datatable
+#' @importFrom DT renderDT
 #' @export
+#' @import DT
 mod_Catalog_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
