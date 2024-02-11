@@ -19,7 +19,7 @@
 ## to change the name in the app_sys() function in app_config.R /!\
 ##
 golem::fill_desc(
-  pkg_name = "WBIL", # The Name of the package containing the App
+  pkg_name = "AI4Lynx", # The Name of the package containing the App
   pkg_title = "PKG_TITLE", # The Title of the package containing the App
   pkg_description = "PKG_DESC.", # The Description of the package containing the App
   author_first_name = "Antón", # Your First Name

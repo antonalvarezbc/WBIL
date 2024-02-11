@@ -4,16 +4,40 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @noRd
+library(stringr)
+library(shiny)
+library(dplyr)
+library(writexl)
+library(DT)
+library(readxl)
+library(lubridate)
+library(shinydashboard)
+library(shinyFiles)
+
+
 app_ui <- function(request) {
   tagList(
-    # Leave this function for adding external resources
+    # Incluye cualquier recurso externo: CSS, JavaScript, etc.
     golem_add_external_resources(),
-    # Your application UI logic
+    # UI principal de la aplicación
     fluidPage(
-      h1("WBIL")
+      # Utiliza tabsetPanel para incluir múltiples tabPanel
+      tabsetPanel(
+        # Primer tabPanel
+        tabPanel("FilelistCreator Revisión/deployment",
+                 mod_WildlifeInsight_ui("wildlifeInsightModuleId")
+        ),
+        # Segundo tabPanel
+        tabPanel("FilelistCreator Revisión/deployment",
+                 mod_Deployment_ui("Deployment")
+        )
+        # Puedes agregar más tabPanel aquí si es necesario
+      )
     )
   )
 }
+
+
 
 #' Add external Resources to the Application
 #'
