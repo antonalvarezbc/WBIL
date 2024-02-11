@@ -22,6 +22,7 @@ attachment::att_amend_desc()
 ## Create a module infrastructure in R/
 golem::add_module(name = "WildlifeInsight", with_test = TRUE) # Name of the module
 golem::add_module(name = "Deployment", with_test = TRUE) # Name of the module
+golem::add_module(name = "Catalog", with_test = TRUE)
 
 
 ## Add helper functions ----
