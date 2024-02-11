@@ -4,38 +4,51 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @noRd
-library(stringr)
-library(shiny)
-library(dplyr)
-library(writexl)
-library(DT)
-library(readxl)
-library(lubridate)
-library(shinydashboard)
-library(shinyFiles)
+# library(stringr)
+# library(shiny)
+# library(dplyr)
+# library(writexl)
+# library(DT)
+# library(readxl)
+# library(lubridate)
+# library(shinydashboard)
+# library(shinyFiles)
 
 
 app_ui <- function(request) {
-  tagList(
-    # Incluye cualquier recurso externo: CSS, JavaScript, etc.
-    golem_add_external_resources(),
-    # UI principal de la aplicación
-    fluidPage(
-      # Utiliza tabsetPanel para incluir múltiples tabPanel
-      tabsetPanel(
-        # Primer tabPanel
-        tabPanel("FilelistCreator Revisión/deployment",
-                 mod_WildlifeInsight_ui("wildlifeInsightModuleId")
-        ),
-        # Segundo tabPanel
-        tabPanel("FilelistCreator Revisión/deployment",
-                 mod_Deployment_ui("Deployment")
-        )
-        # Puedes agregar más tabPanel aquí si es necesario
+  dashboardPage(
+    skin = "green",
+    dashboardHeader(title = "WBIL Shiny"),
+    dashboardSidebar(
+      sidebarMenu(
+        menuItem("Wildlife Insight", tabName = "wildlifeInsight", icon = icon("leaf")),
+        menuItem("FilelistCreator Revisiones", tabName = "deployment", icon = icon("upload")),
+        menuItem("FilelistCreator Catálogos", tabName = "catalog", icon = icon("book"))
+        # Puedes agregar más ítems aquí si es necesario
       )
+    ),
+    dashboardBody(
+      tabItems(
+        # Primer tabItem
+        tabItem(tabName = "wildlifeInsight",
+                mod_WildlifeInsight_ui("wildlifeInsightModuleId")
+        ),
+        # Segundo tabItem
+        tabItem(tabName = "deployment",
+                mod_Deployment_ui("DeploymentModuleId")
+        ),
+        # Tercer tabItem
+        tabItem(tabName = "catalog",
+                mod_Catalog_ui("CatalogModuleId")
+        )
+        # Puedes agregar más tabItems aquí si es necesario
+      ),
+      # Incluye cualquier recurso externo: CSS, JavaScript, etc.
+      golem_add_external_resources()
     )
   )
 }
+
 
 
 

@@ -7,6 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+#'
 mod_WildlifeInsight_ui <- function(id) {
   ns <- NS(id)
   tagList(
@@ -15,9 +16,9 @@ mod_WildlifeInsight_ui <- function(id) {
                sidebarPanel(
                  fileInput(ns("deployments"), "Selecciona el CSV de deployments", accept = ".csv"),
                  fileInput(ns("imagenes"), "Selecciona el CSV de imágenes", accept = ".csv"),
-                 selectInput(ns("submitterIDWI"), "Selecciona quien lo envía:", choices = c("crueda", "ijimenez", "aalvarez", "rpayala")),
-                 selectInput(ns("locationIDWI"), "Selecciona donde estás:", choices = c("Andújar-Cardeña", "Campo de Montiel")),
-                 selectInput(ns("countryWI"), "País:", choices = c("Spain", "Portugal")),
+                 selectInput(ns("submitterIDWI"), "Selecciona quien lo envía:", choices = usuarios),
+                 selectInput(ns("locationIDWI"), "Selecciona donde estás:", choices = locationID),
+                 selectInput(ns("countryWI"), "País:", choices = paises),
                  actionButton(ns("btn"), "Actualizar datos"),  # Asegúrate de namespaciar el ID aquí
                  downloadButton(ns("downloadExcel"), "Descargar Excel para Wildbook")
                ),
@@ -73,7 +74,11 @@ mod_WildlifeInsight_server <- function(id) {
 
     # Renderiza la tabla DT usando el valor reactivo
     output$dataWI_B <- renderDT({
-      datatable(processedData(), options = list(pageLength = 10))
+      datatable(processedData(),     options = list(
+        autoWidth = TRUE,  # Ajusta automáticamente el ancho de las columnas
+        scrollX = TRUE,    # Habilita el desplazamiento horizontal
+        pageLength = 15    # Número de filas a mostrar por página
+      ))
     })
     output$downloadExcel <- downloadHandler(
       filename = function() {
