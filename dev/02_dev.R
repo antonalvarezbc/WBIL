@@ -24,6 +24,7 @@ golem::add_module(name = "WildlifeInsight", with_test = TRUE) # Name of the modu
 golem::add_module(name = "Deployment", with_test = TRUE) # Name of the module
 golem::add_module(name = "Catalog", with_test = TRUE)
 golem::add_module(name = "WildlifeInsightDescarga", with_test = TRUE)
+golem::add_module(name = "Custom1", with_test = TRUE)
 
 
 ## Add helper functions ----

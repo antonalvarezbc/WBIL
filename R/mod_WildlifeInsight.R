@@ -19,6 +19,7 @@ mod_WildlifeInsight_ui <- function(id) {
                  selectInput(ns("submitterIDWI"), "Selecciona quien lo envía:", choices = usuarios),
                  selectInput(ns("locationIDWI"), "Selecciona donde estás:", choices = locationID),
                  selectInput(ns("countryWI"), "País:", choices = paises),
+                 textInput(ns("directorio"), "Directorio de descarga de las imágenes"),
                  actionButton(ns("btn"), "Actualizar datos"),  # Asegúrate de namespaciar el ID aquí
                  downloadButton(ns("downloadExcel"), "Descargar Excel para Wildbook")
                ),
@@ -52,7 +53,7 @@ mod_WildlifeInsight_server <- function(id) {
         inner_join(deployments, by = "deployment_id") %>%
         select(location, timestamp, deployment_id, longitude, latitude) %>%
         mutate(
-          EncounterMediaAsset1 = basename(location),
+          EncounterMediaAsset1 = location %>% str_replace_all("\\.[a-zA-Z0-9]+$", ".JPG") %>% basename(),
           fecha = ymd_hms(timestamp),
           Encounter.verbatimLocality = deployment_id,
           Encounter.submitterID = input$submitterIDWI,
@@ -64,7 +65,8 @@ mod_WildlifeInsight_server <- function(id) {
           Encounter.hour = hour(fecha),
           Encounter.minutes = minute(fecha),
           Encounter.genus = "Lynx",
-          Encounter.specificEpithet = "pardinus"
+          Encounter.specificEpithet = "pardinus",
+          Codigo.descarga = paste("gsutil -m cp -r  ", basename(location), input$directorio)
         ) %>%
         rename(Encounter.decimalLatitud = latitude, Encounter.decimalLongitude =longitude) %>%
         select(-location, -timestamp, -fecha, -deployment_id)

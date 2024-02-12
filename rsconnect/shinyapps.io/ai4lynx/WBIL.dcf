@@ -5,7 +5,7 @@ account: ai4lynx
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11196396
-bundleId: 8244377
+bundleId: 8246181
 url: https://ai4lynx.shinyapps.io/WBIL/
 version: 1
 asMultiple: FALSE
