@@ -3,6 +3,7 @@
 #' @param request Internal parameter for `{shiny}`.
 #'     DO NOT REMOVE.
 #' @import shiny
+#' @import shinydashboard
 #' @noRd
 # library(stringr)
 # library(shiny)
@@ -21,9 +22,12 @@ app_ui <- function(request) {
     dashboardHeader(title = "WBIL Shiny"),
     dashboardSidebar(
       sidebarMenu(
-        menuItem("Wildlife Insight", tabName = "wildlifeInsight", icon = icon("leaf")),
+        menuItem("Wildlife Insight", tabName = "wildlifeInsight", icon = icon("eye")),
         menuItem("FilelistCreator Revisiones", tabName = "deployment", icon = icon("upload")),
-        menuItem("FilelistCreator Catálogos", tabName = "catalog", icon = icon("book"))
+        menuItem("FilelistCreator Catálogos", tabName = "catalog", icon = icon("book")),
+        menuItem("Filelist Personalizada", tabName = "Custom1", icon = icon("camera")),
+        menuItem("Creditos", tabName = "widownload", icon = icon("copyright"))
+
         # Puedes agregar más ítems aquí si es necesario
       )
     ),
@@ -40,6 +44,12 @@ app_ui <- function(request) {
         # Tercer tabItem
         tabItem(tabName = "catalog",
                 mod_Catalog_ui("CatalogModuleId")
+        ),
+        tabItem(tabName = "Custom1",
+                mod_Custom1_ui("Custom1ModuleId")
+        ),
+        tabItem(tabName = "widownload",
+                mod_WildlifeInsightDescarga_ui("WildlifeInsightDescargaModuleId")
         )
         # Puedes agregar más tabItems aquí si es necesario
       ),

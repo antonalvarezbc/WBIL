@@ -13,5 +13,8 @@ app_server <- function(input, output, session) {
   mod_WildlifeInsight_server("wildlifeInsightModuleId")
   mod_Deployment_server("DeploymentModuleId")
   mod_Catalog_server("CatalogModuleId")
+  mod_Custom1_server("Custom1ModuleId")
+  mod_WildlifeInsightDescarga_server("WildlifeInsightDescargaModuleId")
   # Aquí puedes añadir más lógica de servidor o llamar a otros módulos si es necesario
 }
+
