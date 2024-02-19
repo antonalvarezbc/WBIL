@@ -24,8 +24,24 @@ mod_Custom1_ui <- function(id){
 }
 
 #' Custom1 Server Functions
-#'
+#' @import dplyr
+#' @import shiny
+#' @importFrom shiny moduleServer showNotification
+#' @importFrom shiny downloadHandler
+
+#' @import dplyr
+#' @importFrom dplyr filter mutate arrange group_by ungroup rename select
+#' @importFrom readxl read_excel
+#' @importFrom writexl write_xlsx
+
+#' @importFrom DT datatable renderDT
+
+#' @importFrom lubridate dmy_hms
+
+#' @importFrom stringr str_extract
 #' @noRd
+
+
 mod_Custom1_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
@@ -45,18 +61,18 @@ mod_Custom1_server <- function(id){
         filter(`Folder Level` == max(`Folder Level`, na.rm = TRUE)) %>%
           mutate(
             `Folder Level` = as.numeric(`Folder Level`), # Asegurarse de que 'Folder Level' es numérico
-            Created = dmy_hms(Created) # Convertir 'Created' a datetime
+            Created = lubridate::dmy_hms(Created) # Convertir 'Created' a datetime
           ) %>%
           arrange(Folder, Created) %>%
-          group_by(Folder) %>%
+          dplyr::group_by(Folder) %>%
           mutate(
             diff_seconds = c(NA, diff(Created)), # Calcular la diferencia en segundos entre filas consecutivas
             event = cumsum(diff_seconds > 60 | is.na(diff_seconds)) # Identificar 'eventos' basados en la diferencia de tiempo
           ) %>%
-          ungroup() %>%
-          group_by(Folder, event) %>%
+          dplyr::ungroup() %>%
+          dplyr::group_by(Folder, event) %>%
           filter(row_number() == 1) %>% # Mantener solo la primera fila de cada 'evento'
-          ungroup() %>%
+          dplyr::ungroup() %>%
           select(-diff_seconds, -event) %>%
           rename(Individuo = Folder) %>% # Renombrar la columna 'Folder' a 'Individuo'
           mutate(

@@ -33,6 +33,8 @@ mod_Deployment_ui <- function(id) {
 #' Deployment Server Functions
 #'
 #' @noRd
+#' @importFrom lubridate dmy_hms
+
 mod_Deployment_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -56,12 +58,12 @@ mod_Deployment_server <- function(id) {
             Encounter.genus = "Lynx",
             Encounter.specificEpithet = "pardinus",
             Encounter.mediaAsset1 = Name,
-            fecha = dmy_hms(Created),
-            Encounter.day = day(fecha),
-            Encounter.month = month(fecha),
-            Encounter.year = year(fecha),
-            Encounter.hour = hour(fecha),
-            Encounter.minutes = minute(fecha),
+            fecha = lubridate::dmy_hms(Created),
+            Encounter.day = lubridate::day(fecha),
+            Encounter.month = lubridate::month(fecha),
+            Encounter.year = lubridate::year(fecha),
+            Encounter.hour = lubridate::hour(fecha),
+            Encounter.minutes = lubridate::minute(fecha),
             Encounter.submitterID = input$submitterID,
             Encounter.locationID = input$locationID,
             Encounter.verbatimLocality = input$verbatimLocality,

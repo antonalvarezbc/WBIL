@@ -45,33 +45,41 @@ mod_WildlifeInsight_server <- function(id) {
     observeEvent(input$btn, {
       req(input$imagenes, input$deployments)  # Asegúrate de que los archivos estén cargados
 
-      imagenes <- read.csv(input$imagenes$datapath)
-      deployments <- read.csv(input$deployments$datapath)
+      # tryCatch para manejar errores durante el procesamiento
+      tryCatch({
+        imagenes <- read.csv(input$imagenes$datapath)
+        deployments <- read.csv(input$deployments$datapath)
 
-      data <- imagenes %>%
-        filter(common_name == "Iberian Lynx") %>%
-        inner_join(deployments, by = "deployment_id") %>%
-        select(location, timestamp, deployment_id, longitude, latitude) %>%
-        mutate(
-          EncounterMediaAsset1 = location %>% str_replace_all("\\.[a-zA-Z0-9]+$", ".JPG") %>% basename(),
-          fecha = ymd_hms(timestamp),
-          Encounter.verbatimLocality = deployment_id,
-          Encounter.submitterID = input$submitterIDWI,
-          Encounter.locationID = input$locationIDWI,
-          Encounter.country = input$countryWI,
-          Encounter.day = day(fecha),
-          Encounter.month = month(fecha),
-          Encounter.year = year(fecha),
-          Encounter.hour = hour(fecha),
-          Encounter.minutes = minute(fecha),
-          Encounter.genus = "Lynx",
-          Encounter.specificEpithet = "pardinus",
-          Codigo.descarga = paste("gsutil -m cp -r  ", basename(location), input$directorio)
-        ) %>%
-        rename(Encounter.decimalLatitud = latitude, Encounter.decimalLongitude =longitude) %>%
-        select(-location, -timestamp, -fecha, -deployment_id)
+        # Procesamiento de datos
+        data <- imagenes %>%
+          filter(common_name == "Iberian Lynx") %>%
+          inner_join(deployments, by = "deployment_id") %>%
+          select(location, timestamp, deployment_id, longitude, latitude) %>%
+          mutate(
+            EncounterMediaAsset1 = location %>% stringr::str_replace_all("\\.[a-zA-Z0-9]+$", ".JPG") %>% basename(),
+            fecha = lubridate::ymd_hms(timestamp),
+            Encounter.verbatimLocality = deployment_id,
+            Encounter.submitterID = input$submitterIDWI,
+            Encounter.locationID = input$locationIDWI,
+            Encounter.country = input$countryWI,
+            Encounter.day = lubridate::day(fecha),
+            Encounter.month = lubridate::month(fecha),
+            Encounter.year = lubridate::year(fecha),
+            Encounter.hour = lubridate::hour(fecha),
+            Encounter.minutes = lubridate::minute(fecha),
+            Encounter.genus = "Lynx",
+            Encounter.specificEpithet = "pardinus",
+            Codigo.descarga = paste("gsutil -m cp -r  ", basename(location), input$directorio)
+          ) %>%
+          rename(Encounter.decimalLatitud = latitude, Encounter.decimalLongitude =longitude) %>%
+          select(-location, -timestamp, -fecha, -deployment_id)
 
-      processedData(data)  # Actualiza el valor reactivo
+        processedData(data)  # Actualiza el valor reactivo
+      }, error = function(e) {
+        # Manejo de errores, como mostrar un mensaje al usuario
+        showNotification("Error procesando los datos: ", e$message, type = "error")
+        # Opcionalmente, puedes registrar el error o tomar otras medidas
+      })
     }, ignoreNULL = FALSE)
 
     # Renderiza la tabla DT usando el valor reactivo
@@ -90,12 +98,18 @@ mod_WildlifeInsight_server <- function(id) {
         # Asegura que processedData esté disponible
         req(processedData())
 
-        # Usar writexl para escribir los datos a un archivo Excel
-        writexl::write_xlsx(processedData(), file)
+        # tryCatch para manejar errores al escribir el archivo Excel
+        tryCatch({
+          writexl::write_xlsx(processedData(), file)
+        }, error = function(e) {
+          # Manejo de errores, como notificar al usuario
+          showNotification("Error al escribir el archivo Excel: ", e$message, type = "error")
+        })
       }
     )
   })
 }
+
 
 
 ## To be copied in the UI
