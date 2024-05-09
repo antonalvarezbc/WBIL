@@ -26,7 +26,7 @@ app_ui <- function(request) {
         menuItem("FilelistCreator Revisiones", tabName = "deployment", icon = icon("upload")),
         menuItem("FilelistCreator Catálogos", tabName = "catalog", icon = icon("book")),
         menuItem("Filelist Personalizada", tabName = "Custom1", icon = icon("camera")),
-        menuItem("Creditos", tabName = "widownload", icon = icon("copyright"))
+        menuItem("Creditos", tabName = "creditos", icon = icon("copyright"))
 
         # Puedes agregar más ítems aquí si es necesario
       )
@@ -48,8 +48,8 @@ app_ui <- function(request) {
         tabItem(tabName = "Custom1",
                 mod_Custom1_ui("Custom1ModuleId")
         ),
-        tabItem(tabName = "widownload",
-                mod_WildlifeInsightDescarga_ui("WildlifeInsightDescargaModuleId")
+        tabItem(tabName = "creditos",
+                mod_creditos_ui("creditos")
         )
         # Puedes agregar más tabItems aquí si es necesario
       ),
