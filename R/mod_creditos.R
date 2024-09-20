@@ -13,8 +13,8 @@ mod_creditos_ui <- function(id){
     mainPanel(
       # Uso de HTML para definir diferentes tamaños de texto
       HTML("
-          <p><span style='font-size: 14px;'>Alpha App hecha por AAB.</span></p>
-          <p><span style='font-size: 20px;'>Posible App web de la acción A8 del Life+ Lynxconnect.</span></p>
+          <p><span style='font-size: 14px;'>Web app en estado alpha hecha por AAB.</span></p>
+          <p><span style='font-size: 20px;'></span></p>
           <p><span style='font-size: 26px;'> </span></p>
         ")
     )
