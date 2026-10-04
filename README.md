@@ -4,10 +4,137 @@
 # WBIL
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-El proposito de la app WBIL es facilitar el prepocesamiento de los datos de lince ibérico antes de ser subidos a la plataforma lynx.wildbook.org
+WBIL es una aplicación Shiny para preparar los datos de fototrampeo de
+lince ibérico (*Lynx pardinus*) antes de subirlos a
+[lynx.wildbook.org](https://lynx.wildbook.org). Convierte los listados de
+imágenes que salen de las cámaras o de otras herramientas en el Excel de
+carga masiva que espera Wildbook, con las columnas `Encounter.*` ya
+rellenas.
 
-## Installation
+**App publicada:** <https://ai4lynx.shinyapps.io/WBIL/>
 
-Esta app será alojada en shinny.apps.io
+Surgió como posible app web de la acción A8 del proyecto LIFE
+LynxConnect.
+
+## Qué hace
+
+La app tiene cuatro herramientas, cada una en una pestaña. En todas el
+flujo es el mismo: subes el archivo, eliges los datos comunes del envío,
+pulsas **Actualizar datos**, revisas la tabla y descargas el Excel.
+
+| Pestaña | Entrada | Salida |
+|----|----|----|
+| **Wildlife Insight** | Los CSV de *deployments* e *imágenes* exportados de Wildlife Insights | `WI-WB-<fecha>.xlsx` para Wildbook |
+| **FilelistCreator Revisiones** | Excel de FileList de una revisión de cámaras | `FL-WB-<fecha>.xlsx` para Wildbook |
+| **FilelistCreator Catálogos** | Excel de FileList de un catálogo de individuos | `WildbookCatalogo<fecha>.xlsx` para Wildbook |
+| **Filelist Personalizada** | Excel de FileList con carpetas por individuo | `FL-CLM-<fecha>.xlsx`, un resumen por individuo |
+
+### Wildlife Insight
+
+Cruza las imágenes con sus *deployments* (`deployment_id`) y se queda solo
+con las identificadas como `Iberian Lynx`. De cada imagen saca la fecha y
+hora, las coordenadas y la localidad (el `deployment_id`), y añade una
+columna `Codigo.descarga` con la orden `gsutil` para bajar la imagen al
+directorio que indiques.
+
+### FilelistCreator Revisiones
+
+Para imágenes de una revisión de cámaras. Usa las columnas `Name` y
+`Created` del Excel de FileList: el nombre pasa a ser el *media asset* y la
+fecha de creación se descompone en día, mes, año, hora y minutos.
+Localidad, latitud y longitud se escriben a mano y se aplican a todas las
+filas.
+
+### FilelistCreator Catálogos
+
+Para fotos de catálogo, donde el nombre del archivo empieza por el nombre
+del individuo. Saca el ID del individuo del principio de `Name` (hasta el
+primer espacio o guion bajo) y le añade el sufijo del área (`_And`, `_CdM`)
+para el *nickname*.
+
+### Filelist Personalizada
+
+Toma el nivel de carpeta más profundo (una carpeta por individuo), ordena
+las imágenes por fecha y agrupa en un solo evento las que están a menos de
+60 segundos entre sí. Devuelve una fila por evento con `Codigo` (el código
+de cámara sacado de la ruta), `Individuo`, `Fecha` y `Hora`.
+
+## Formato de los archivos de entrada
+
+- **Excel de FileList:** necesita las columnas `Name` y `Created`, con la
+  fecha en formato día/mes/año hora:minuto:segundo. La pestaña
+  personalizada usa además `Folder`, `Folder Level` y `Path`.
+- **CSV de Wildlife Insights:** el de imágenes necesita `deployment_id`,
+  `common_name`, `location` y `timestamp`; el de *deployments*,
+  `deployment_id`, `latitude` y `longitude`.
+
+El tamaño máximo de subida es de 100 MB.
+
+## Ejecutarla en local
+
+Necesitas R 4.3 o posterior. Las dependencias están fijadas con
+[renv](https://rstudio.github.io/renv/).
+
+``` r
+# En la carpeta del proyecto
+install.packages("renv")
+renv::restore()
+
+# Arrancar la app
+golem::run_dev()   # modo desarrollo (dev/run_dev.R)
+# o bien
+source("app.R")    # igual que en shinyapps.io
+```
+
+## Configuración
+
+Las listas de los desplegables (quién envía, área y país) están en
+`R/config.R`:
+
+``` r
+usuarios   <- c("FCDBH Andujar", "ijimenez_And", "ijimenez_CdM")
+paises     <- c("Spain", "Portugal")
+locationID <- c("Andújar-Cardeña", "Campo de Montiel")
+```
+
+Para añadir un usuario o un área nuevos, edita ese archivo. Los
+`submitterID` de la pestaña de catálogos (`Andujar_admin`, `JEX_admin`,
+`CdM_admin`) están en `R/mod_Catalog.R`.
+
+## Estructura
+
+Es un paquete R creado con [golem](https://thinkr-open.github.io/golem/).
+
+    R/
+      app_ui.R, app_server.R          menú lateral y enlace de los módulos
+      mod_WildlifeInsight.R           pestaña Wildlife Insight
+      mod_Deployment.R                pestaña FilelistCreator Revisiones
+      mod_Catalog.R                   pestaña FilelistCreator Catálogos
+      mod_Custom1.R                   pestaña Filelist Personalizada
+      mod_WildlifeInsightDescarga.R   pestaña Créditos
+      config.R                        listas de usuarios, países y áreas
+    inst/app/www/                     CSS, JS y favicon
+    dev/                              scripts de golem (arranque, desarrollo, despliegue)
+    tests/testthat/                   tests
+
+## Despliegue
+
+La app está en shinyapps.io, en la cuenta `ai4lynx`. Para publicar una
+versión nueva:
+
+``` r
+rsconnect::deployApp()
+```
+
+## Licencia
+
+MIT. Ver [LICENSE.md](LICENSE.md).
+
+## Autor
+
+Antón Álvarez
