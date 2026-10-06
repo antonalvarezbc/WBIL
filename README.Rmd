@@ -4,84 +4,123 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# WBIL
+<div align="center">
 
-<!-- badges: start -->
+# 🐾 WBIL
+
+### Wildbook Iberian Lynx · preparación de datos de fototrampeo para Wildbook
+
+**App Shiny que convierte los listados de imágenes de cámaras trampa de lince ibérico (*Lynx pardinus*) en el Excel de carga masiva de [lynx.wildbook.org](https://lynx.wildbook.org)**
+
+[![App en vivo](https://img.shields.io/badge/app-ai4lynx.shinyapps.io-2E7D32?logo=rstudioide&logoColor=white)](https://ai4lynx.shinyapps.io/WBIL/)
+[![R](https://img.shields.io/badge/R-%E2%89%A54.3-276DC3?logo=r&logoColor=white)](https://www.r-project.org/)
+[![Shiny](https://img.shields.io/badge/Shiny-shinydashboard-1A9BD7?logo=rstudioide&logoColor=white)](https://shiny.posit.co/)
+[![golem](https://img.shields.io/badge/framework-golem-E0A100)](https://thinkr-open.github.io/golem/)
+[![renv](https://img.shields.io/badge/deps-renv-6A5ACD)](https://rstudio.github.io/renv/)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-<!-- badges: end -->
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE.md)
 
-WBIL es una aplicación Shiny para preparar los datos de fototrampeo de
-lince ibérico (*Lynx pardinus*) antes de subirlos a
-[lynx.wildbook.org](https://lynx.wildbook.org). Convierte los listados de
-imágenes que salen de las cámaras o de otras herramientas en el Excel de
-carga masiva que espera Wildbook, con las columnas `Encounter.*` ya
-rellenas.
+### 👉 [Abrir la app](https://ai4lynx.shinyapps.io/WBIL/)
 
-**App publicada:** <https://ai4lynx.shinyapps.io/WBIL/>
+</div>
 
-Surgió como posible app web de la acción A8 del proyecto LIFE
-LynxConnect.
+---
 
-## Qué hace
+## 📖 Contenido
 
-La app tiene cuatro herramientas, cada una en una pestaña. En todas el
-flujo es el mismo: subes el archivo, eliges los datos comunes del envío,
-pulsas **Actualizar datos**, revisas la tabla y descargas el Excel.
+- [Por qué existe](#-por-qué-existe)
+- [Cómo funciona](#%EF%B8%8F-cómo-funciona)
+- [Las cuatro herramientas](#-las-cuatro-herramientas)
+- [Formato de los archivos de entrada](#-formato-de-los-archivos-de-entrada)
+- [Ejecutarla en local](#-ejecutarla-en-local)
+- [Configuración](#%EF%B8%8F-configuración)
+- [Estructura del proyecto](#-estructura-del-proyecto)
+- [Despliegue](#%EF%B8%8F-despliegue)
+- [Licencia y autoría](#-licencia-y-autoría)
 
-| Pestaña | Entrada | Salida |
-|----|----|----|
-| **Wildlife Insight** | Los CSV de *deployments* e *imágenes* exportados de Wildlife Insights | `WI-WB-<fecha>.xlsx` para Wildbook |
-| **FilelistCreator Revisiones** | Excel de FileList de una revisión de cámaras | `FL-WB-<fecha>.xlsx` para Wildbook |
-| **FilelistCreator Catálogos** | Excel de FileList de un catálogo de individuos | `WildbookCatalogo<fecha>.xlsx` para Wildbook |
-| **Filelist Personalizada** | Excel de FileList con carpetas por individuo | `FL-CLM-<fecha>.xlsx`, un resumen por individuo |
+---
 
-### Wildlife Insight
+## 🌍 Por qué existe
 
-Cruza las imágenes con sus *deployments* (`deployment_id`) y se queda solo
-con las identificadas como `Iberian Lynx`. De cada imagen saca la fecha y
-hora, las coordenadas y la localidad (el `deployment_id`), y añade una
-columna `Codigo.descarga` con la orden `gsutil` para bajar la imagen al
-directorio que indiques.
+El seguimiento del lince ibérico genera miles de fotos de cámaras trampa que acaban en **[Wildbook](https://lynx.wildbook.org)**, la plataforma de identificación individual. Para subirlas en bloque, Wildbook pide un Excel con columnas `Encounter.*` muy concretas: fecha descompuesta, coordenadas, localidad, quién envía, especie…
 
-### FilelistCreator Revisiones
+Rellenar ese Excel a mano en cada revisión de cámaras es lento y propenso a errores. **WBIL lo automatiza**: subes el listado que ya tienes, eliges los datos comunes del envío y descargas el Excel listo para Wildbook.
 
-Para imágenes de una revisión de cámaras. Usa las columnas `Name` y
-`Created` del Excel de FileList: el nombre pasa a ser el *media asset* y la
-fecha de creación se descompone en día, mes, año, hora y minutos.
-Localidad, latitud y longitud se escriben a mano y se aplican a todas las
-filas.
+Surgió como posible app web de la **acción A8 del proyecto LIFE LynxConnect**.
 
-### FilelistCreator Catálogos
+## ⚙️ Cómo funciona
 
-Para fotos de catálogo, donde el nombre del archivo empieza por el nombre
-del individuo. Saca el ID del individuo del principio de `Name` (hasta el
-primer espacio o guion bajo) y le añade el sufijo del área (`_And`, `_CdM`)
-para el *nickname*.
+Todas las pestañas siguen el mismo flujo:
 
-### Filelist Personalizada
+```mermaid
+flowchart LR
+    A[📂 Subir archivo<br/>Excel FileList o CSV<br/>de Wildlife Insights] --> B[📝 Elegir datos comunes<br/>quién envía, área,<br/>país, localidad]
+    B --> C[🔄 Actualizar datos]
+    C --> D[👀 Revisar tabla]
+    D --> E[⬇️ Descargar Excel<br/>con columnas Encounter.*]
+    E --> F[(🐆 lynx.wildbook.org<br/>carga masiva)]
+```
 
-Toma el nivel de carpeta más profundo (una carpeta por individuo), ordena
-las imágenes por fecha y agrupa en un solo evento las que están a menos de
-60 segundos entre sí. Devuelve una fila por evento con `Codigo` (el código
-de cámara sacado de la ruta), `Individuo`, `Fecha` y `Hora`.
+## 🧰 Las cuatro herramientas
 
-## Formato de los archivos de entrada
+| | Pestaña | Entrada | Salida |
+|---|----|----|----|
+| 👁️ | **Wildlife Insight** | CSV de *deployments* + CSV de *imágenes* de Wildlife Insights | `WI-WB-<fecha>.xlsx` |
+| 📤 | **FilelistCreator Revisiones** | Excel de FileList de una revisión de cámaras | `FL-WB-<fecha>.xlsx` |
+| 📘 | **FilelistCreator Catálogos** | Excel de FileList de un catálogo de individuos | `WildbookCatalogo<fecha>.xlsx` |
+| 📷 | **Filelist Personalizada** | Excel de FileList con una carpeta por individuo | `FL-CLM-<fecha>.xlsx` (resumen por individuo) |
 
-- **Excel de FileList:** necesita las columnas `Name` y `Created`, con la
-  fecha en formato día/mes/año hora:minuto:segundo. La pestaña
-  personalizada usa además `Folder`, `Folder Level` y `Path`.
-- **CSV de Wildlife Insights:** el de imágenes necesita `deployment_id`,
-  `common_name`, `location` y `timestamp`; el de *deployments*,
-  `deployment_id`, `latitude` y `longitude`.
+<details open>
+<summary><b>👁️ Wildlife Insight</b></summary>
+<br>
 
-El tamaño máximo de subida es de 100 MB.
+Cruza las imágenes con sus *deployments* (`deployment_id`) y **se queda solo con las identificadas como `Iberian Lynx`**. De cada imagen saca fecha y hora, coordenadas y localidad (el `deployment_id`), y añade una columna `Codigo.descarga` con la orden `gsutil` para bajar la imagen al directorio que indiques.
 
-## Ejecutarla en local
+</details>
 
-Necesitas R 4.3 o posterior. Las dependencias están fijadas con
-[renv](https://rstudio.github.io/renv/).
+<details open>
+<summary><b>📤 FilelistCreator Revisiones</b></summary>
+<br>
 
-``` r
+Para imágenes de una revisión de cámaras. Usa las columnas `Name` y `Created` del Excel de FileList: el nombre pasa a ser el *media asset* (`Encounter.mediaAsset1`) y la fecha de creación se descompone en día, mes, año, hora y minutos. Localidad, latitud y longitud se escriben a mano y se aplican a todas las filas.
+
+</details>
+
+<details open>
+<summary><b>📘 FilelistCreator Catálogos</b></summary>
+<br>
+
+Para fotos de catálogo, donde el nombre del archivo empieza por el nombre del individuo. Saca el ID del individuo del principio de `Name` (hasta el primer espacio o guion bajo) y le añade el sufijo del área (`_And`, `_CdM`) para el *nickname* (`MarkedIndividual.nickname`).
+
+</details>
+
+<details open>
+<summary><b>📷 Filelist Personalizada</b></summary>
+<br>
+
+Toma el nivel de carpeta más profundo (una carpeta por individuo), ordena las imágenes por fecha y **agrupa en un solo evento las que están a menos de 60 segundos entre sí**. Devuelve una fila por evento con `Codigo` (el código de cámara sacado de la ruta), `Individuo`, `Fecha` y `Hora`.
+
+</details>
+
+### Columnas que genera para Wildbook
+
+`Encounter.mediaAsset1` · `Encounter.day` / `month` / `year` / `hour` / `minutes` · `Encounter.decimalLatitude` / `decimalLongitude` · `Encounter.verbatimLocality` · `Encounter.locationID` · `Encounter.country` · `Encounter.submitterID` · `Encounter.genus` = `Lynx` · `Encounter.specificEpithet` = `pardinus` · `Encounter.individualID` y `MarkedIndividual.nickname` (catálogos)
+
+## 📄 Formato de los archivos de entrada
+
+| Archivo | Columnas necesarias |
+|---|---|
+| **Excel de FileList** | `Name`, `Created` (fecha `dd/mm/aaaa hh:mm:ss`). La pestaña personalizada usa además `Folder`, `Folder Level` y `Path` |
+| **CSV de imágenes** (Wildlife Insights) | `deployment_id`, `common_name`, `location`, `timestamp` |
+| **CSV de deployments** (Wildlife Insights) | `deployment_id`, `latitude`, `longitude` |
+
+> 📦 Tamaño máximo de subida: **100 MB**.
+
+## 🚀 Ejecutarla en local
+
+Necesitas **R ≥ 4.3**. Las dependencias están fijadas con [renv](https://rstudio.github.io/renv/).
+
+```r
 # En la carpeta del proyecto
 install.packages("renv")
 renv::restore()
@@ -92,50 +131,57 @@ golem::run_dev()   # modo desarrollo (dev/run_dev.R)
 source("app.R")    # igual que en shinyapps.io
 ```
 
-## Configuración
+## 🛠️ Configuración
 
-Las listas de los desplegables (quién envía, área y país) están en
-`R/config.R`:
+Las listas de los desplegables (quién envía, área y país) están en [`R/config.R`](R/config.R):
 
-``` r
+```r
 usuarios   <- c("FCDBH Andujar", "ijimenez_And", "ijimenez_CdM")
 paises     <- c("Spain", "Portugal")
 locationID <- c("Andújar-Cardeña", "Campo de Montiel")
 ```
 
-Para añadir un usuario o un área nuevos, edita ese archivo. Los
-`submitterID` de la pestaña de catálogos (`Andujar_admin`, `JEX_admin`,
-`CdM_admin`) están en `R/mod_Catalog.R`.
+Para añadir un usuario o un área nuevos, edita ese archivo. Los `submitterID` de la pestaña de catálogos (`Andujar_admin`, `JEX_admin`, `CdM_admin`) están en [`R/mod_Catalog.R`](R/mod_Catalog.R).
 
-## Estructura
+## 📁 Estructura del proyecto
 
-Es un paquete R creado con [golem](https://thinkr-open.github.io/golem/).
+Es un paquete R creado con [golem](https://thinkr-open.github.io/golem/): cada pestaña es un módulo Shiny independiente.
 
-    R/
-      app_ui.R, app_server.R          menú lateral y enlace de los módulos
-      mod_WildlifeInsight.R           pestaña Wildlife Insight
-      mod_Deployment.R                pestaña FilelistCreator Revisiones
-      mod_Catalog.R                   pestaña FilelistCreator Catálogos
-      mod_Custom1.R                   pestaña Filelist Personalizada
-      mod_WildlifeInsightDescarga.R   pestaña Créditos
-      config.R                        listas de usuarios, países y áreas
-    inst/app/www/                     CSS, JS y favicon
-    dev/                              scripts de golem (arranque, desarrollo, despliegue)
-    tests/testthat/                   tests
+```text
+WBIL/
+├── R/
+│   ├── app_ui.R, app_server.R          # Menú lateral (shinydashboard) y enlace de módulos
+│   ├── mod_WildlifeInsight.R           # 👁️ Wildlife Insight
+│   ├── mod_Deployment.R                # 📤 FilelistCreator Revisiones
+│   ├── mod_Catalog.R                   # 📘 FilelistCreator Catálogos
+│   ├── mod_Custom1.R                   # 📷 Filelist Personalizada
+│   ├── mod_WildlifeInsightDescarga.R   # Pestaña de créditos
+│   └── config.R                        # Usuarios, países y áreas
+├── inst/app/www/                       # CSS, JS y favicon
+├── dev/                                # Scripts de golem (arranque, desarrollo, despliegue)
+├── tests/testthat/                     # Tests
+├── renv.lock                           # Dependencias fijadas
+└── app.R                               # Punto de entrada para shinyapps.io
+```
 
-## Despliegue
+**Stack:** `shiny` · `shinydashboard` · `golem` · `dplyr` · `lubridate` · `stringr` · `readxl` · `writexl` · `DT`
 
-La app está en shinyapps.io, en la cuenta `ai4lynx`. Para publicar una
-versión nueva:
+## ☁️ Despliegue
 
-``` r
+La app está publicada en **shinyapps.io**, en la cuenta `ai4lynx`. Para publicar una versión nueva:
+
+```r
 rsconnect::deployApp()
 ```
 
-## Licencia
+## 📜 Licencia y autoría
 
-MIT. Ver [LICENSE.md](LICENSE.md).
+Licencia **MIT**. Ver [LICENSE.md](LICENSE.md).
 
-## Autor
+---
 
-Antón Álvarez
+<div align="center">
+
+Hecha por **[Antón Álvarez](https://github.com/antonalvarezbc)** para el seguimiento del lince ibérico 🐆
+
+</div>
